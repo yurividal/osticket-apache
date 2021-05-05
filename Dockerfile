@@ -1,8 +1,7 @@
 FROM php:7.4-apache
 ENV OSTICKET_VERSION=v1.15.2
 
-ADD install.php /tmp
-#ADD ost-config.php /tmp
+COPY ./install.php /
 
 # For debugging purposes, do not merge the different RUN steps
 
@@ -82,7 +81,7 @@ RUN install-php-extensions gd imap xml json mbstring phar intl fileinfo zip apcu
 
 RUN git clone -b ${OSTICKET_VERSION} --depth 1 https://github.com/osTicket/osTicket.git \
 	&& cd osTicket \
-	&& mv /tmp/install.php setup/
+	&& mv /install.php setup/
 
 RUN cd osTicket \
 	&& php manage.php deploy -sv /var/www/html/ \
@@ -96,6 +95,8 @@ RUN cd osTicket \
 	&& wget -nv -O /var/www/html/include/plugins/storage-fs.phar https://s3.amazonaws.com/downloads.osticket.com/plugin/storage-fs.phar
 
 RUN rm -Rf /var/www/html/setup/
+
+#RUN mv /ost-config.php /var/www/html/include
 
 # Run both apache2-frontend as well as the cron daemon
 ENTRYPOINT ["/bin/bash", "-c", "chmod 644 /etc/cron.d/osticketcron; cron & apache2-foreground"]
