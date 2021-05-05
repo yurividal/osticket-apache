@@ -96,7 +96,6 @@ RUN cd osTicket \
 
 RUN rm -Rf /var/www/html/setup/
 
-#RUN mv /ost-config.php /var/www/html/include
 
 # Run both apache2-frontend as well as the cron daemon
 ENTRYPOINT ["/bin/bash", "-c", "chmod 644 /etc/cron.d/osticketcron; cron & apache2-foreground"]
