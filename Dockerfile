@@ -1,7 +1,8 @@
 FROM php:7.4-apache
 ENV OSTICKET_VERSION=v1.15.2
 
-COPY ./install.php /
+ADD ./install.php /
+ADD ./install.sh /
 
 # For debugging purposes, do not merge the different RUN steps
 
@@ -61,14 +62,12 @@ RUN apt-get update && \
 	rm -rf /var/lib/apt/lists/*
 COPY ./osticketcron /etc/cron.d/osticketcron
 
-# Import default osTicket installation
-#COPY ./osTicket /var/www/html
 
 COPY ./php.ini "$PHP_INI_DIR/php.ini"
 
 
 # Install PHP extension installer
-ADD https://raw.githubusercontent.com/mlocati/docker-php-extension-installer/master/install-php-extensions /usr/local/bin/
+ADD https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
 RUN chmod uga+x /usr/local/bin/install-php-extensions && sync
 
 # Install PHP extensions
@@ -77,15 +76,15 @@ RUN install-php-extensions pdo_mysql
 # Enable Apache's mod_rewrite
 RUN a2enmod rewrite
 
-RUN install-php-extensions gd imap xml json mbstring phar intl fileinfo zip apcu opcache mysqli ldap
+RUN install-php-extensions gd imap xml json mbstring phar intl fileinfo zip apcu opcache mysqli ldap sockets
 
 RUN git clone -b ${OSTICKET_VERSION} --depth 1 https://github.com/osTicket/osTicket.git \
 	&& cd osTicket \
-	&& mv /install.php setup/
+	&& mv /install.php setup/ \
+	&& mv /install.sh setup/ \
+	&& php manage.php deploy -sv /var/www/html/
 
-RUN cd osTicket \
-	&& php manage.php deploy -sv /var/www/html/ \
-	&& wget -nv -O /var/www/html/include/i18n/fr.phar https://s3.amazonaws.com/downloads.osticket.com/lang/fr.phar \
+RUN wget -nv -O /var/www/html/include/i18n/fr.phar https://s3.amazonaws.com/downloads.osticket.com/lang/fr.phar \
 	&& wget -nv -O /var/www/html/include/i18n/ar.phar https://s3.amazonaws.com/downloads.osticket.com/lang/ar.phar \
 	&& wget -nv -O /var/www/html/include/i18n/pt_BR.phar https://s3.amazonaws.com/downloads.osticket.com/lang/pt_BR.phar \
 	&& wget -nv -O /var/www/html/include/i18n/it.phar https://s3.amazonaws.com/downloads.osticket.com/lang/it.phar \
@@ -94,11 +93,10 @@ RUN cd osTicket \
 	&& wget -nv -O /var/www/html/include/plugins/auth-ldap.phar https://s3.amazonaws.com/downloads.osticket.com/plugin/auth-ldap.phar \
 	&& wget -nv -O /var/www/html/include/plugins/storage-fs.phar https://s3.amazonaws.com/downloads.osticket.com/plugin/storage-fs.phar
 
-RUN rm -Rf /var/www/html/setup/
-
+RUN chmod +x /var/www/html/setup/install.sh
 
 # Run both apache2-frontend as well as the cron daemon
-ENTRYPOINT ["/bin/bash", "-c", "chmod 644 /etc/cron.d/osticketcron; cron & apache2-foreground"]
+ENTRYPOINT ["/bin/bash", "-c", "/var/www/html/setup/install.sh; chmod 644 /etc/cron.d/osticketcron; cron & apache2-foreground"]
 
 # Make /var/www/html a recommended volume
 VOLUME ["/var/www/html", "/var/www/attachments"]

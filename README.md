@@ -1,7 +1,5 @@
 ## OSticket Latest Version with APACHE server and ldap plugin
 ###  How to Use
-* This image will require you to mount a working version of ost-config.php into the ...includes/ folder, containing the access details to your database.
-
-### To-do
-* Make the config file not need to be persistent, by reading values from the ENV variables provided at runtime.
-* FEEL FREE TO IMPROVE THIS IMAGE AND SUBMIT PRs to accomplish the job above.
+* Start a database container first. (recommended mysql:5.6)
+* start this container and pass the followinf env variables:
+* MYSQL_USER, MYSQL_ROOT_PASSWORD, MYSQL_PASSWORD, MYSQL_HOST, MYSQL_DATABASE, INSTALL_SECRET (any secret you want.) 
