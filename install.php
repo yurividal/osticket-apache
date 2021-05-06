@@ -24,7 +24,7 @@ $vars = array(
 
   'prefix'   => getenv("MYSQL_PREFIX")              ?: 'ost_',
   'dbhost'   => getenv("MYSQL_HOST")                ?: 'mysql',
-  'dbport'   => getenv("MYSQL_PORT")                ?: 3306,
+  'dbport'   => getenv("MYSQL_ACCESS_PORT")                ?: 3306,
   'dbname'   => getenv("MYSQL_DATABASE")            ?: 'osticket',
   'dbuser'   => getenv("MYSQL_USER")                ?: 'osticket',
   'dbpass'   => getenv("MYSQL_PASSWORD")            ?: getenv("MYSQL_ENV_MYSQL_PASSWORD"),
