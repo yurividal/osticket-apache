@@ -1,5 +1,5 @@
 FROM php:7.4-apache
-ENV OSTICKET_VERSION=v1.15.2
+ENV OSTICKET_VERSION=v1.15.4
 
 ADD ./install.php /
 ADD ./install.sh /
