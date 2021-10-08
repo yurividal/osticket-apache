@@ -3,7 +3,7 @@
 set -e
 
 # Automate installation
-echo Runnins installation
+echo Running installation
 search_string="require('../bootstrap.php');"
 replace_string="require('/var/www/html/bootstrap.php');"
 sed -i "s|${search_string}|${replace_string}|g" /var/www/html/setup/setup.inc.php
